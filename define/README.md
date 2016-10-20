@@ -72,7 +72,7 @@ Your body mapping template should have `Content-Type` be `application/x-www-form
  "$util.urlDecode($kvTokenised[0])" : #if($kvTokenised[1].length() > 0)"$util.urlDecode($kvTokenised[1])"#{else}""#end#if( $foreach.hasNext ),#end
 #end
 }
-```.
+```
 This template was taken from [here](https://medium.com/@pixelcodeuk/create-a-slack-slash-command-with-aws-lambda-83fb172f9a74#.8mq8z7soq).
 
 For the integration response, add the following to the mapping template for `application/json`:
