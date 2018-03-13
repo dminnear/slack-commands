@@ -36,7 +36,7 @@ def handler(event, context):
     entry =  entry_list.firstChild
     while entry != None:
       if entry.nodeType == entry.ELEMENT_NODE and entry.tagName == 'entry' and entry.getAttribute('id'):
-        responseBody = processEntry(entry)
+        responseBody = processEntry(entry, event['text'].replace('+', ' '))
         r = requests.post(responseUrl, data=responseBody)
         if r.status_code != 200:
           fail("Request to slack webhook failed. Response: ", r.text)
@@ -57,11 +57,12 @@ def fail(err_str, dom = None):
   raise Exception(err_str)
 
 # Process dictionary api entry into json object to be sent to slack
-def processEntry(entry):
+def processEntry(entry, searchTerm):
   dts = entry.getElementsByTagName('dt')
   definitions = [dtToString(dt) for dt in dts]
   attachments = [{'color': '3C0857', 'text': definition} for definition in definitions]
-  return json.dumps({'attachments': attachments, 'response_type': 'ephemeral'})
+  text = searchTerm + ' is defined as:'
+  return json.dumps({'text': text, 'attachments': attachments, 'response_type': 'ephemeral'})
 
 # Sometimes definitions are nested inside other xml objects
 def dtToString(dt):
@@ -72,5 +73,11 @@ def dtToString(dt):
       node = node.firstChild
 
     dt_str += node.nodeValue
+
+  # Format definition returned
+  dt_str = dt_str.strip()[1:]
+  idx = dt_str.find(':')
+  if idx != -1:
+    dt_str = dt_str[:idx].strip()
 
   return dt_str
